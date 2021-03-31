@@ -28,13 +28,11 @@ create_control <- function(out_file, date, locations, dir_templates="file_templa
   writeLines(c(date, nb_fire), out_conn)
   close(out_conn)
 
-
   # Add lat long to file
   write.table(locations, out_file, row.names = FALSE, col.names = FALSE, append=TRUE)
 
   # Add template
   write(control_lines, out_file, append = TRUE)
-
 }
 
 

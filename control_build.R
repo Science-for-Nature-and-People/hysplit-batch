@@ -17,7 +17,8 @@ create_control <- function(out_file, date, locations, dir_templates="file_templa
   # Build paths
   control_file <- "CONTROL_template"
   control_path <- file.path(dir_templates, control_file)
-  out_conn <- file(out_file)
+  out_full <- file.path("output", out_file)
+  out_conn <- file(out_full)
 
   # Read control file in
   control_lines <- readLines(control_path)
@@ -29,10 +30,10 @@ create_control <- function(out_file, date, locations, dir_templates="file_templa
   close(out_conn)
 
   # Add lat long to file
-  write.table(locations, out_file, row.names = FALSE, col.names = FALSE, append=TRUE)
+  write.table(locations, out_full, row.names = FALSE, col.names = FALSE, append=TRUE)
 
   # Add template
-  write(control_lines, out_file, append = TRUE)
+  write(control_lines, out_full, append = TRUE)
 }
 
 

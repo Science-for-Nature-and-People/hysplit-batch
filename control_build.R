@@ -53,4 +53,7 @@ my_locations <- tribble(
   39.01209315, -120.5446328, 0.0
 )
 
+# Call the function
 create_control(filename, june_date, my_locations)
+
+

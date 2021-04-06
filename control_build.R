@@ -38,7 +38,6 @@ create_control <- function(out_file, date, locations, dir_templates="file_templa
 
 # create folder name
 folder_name <- "July"
-
 # creating file folder
 dir.create(folder_name)
 
@@ -59,7 +58,6 @@ july_date <- records %>%
   mutate(YYYY = substr(YYYY, nchar(YYYY) - 1, nchar(YYYY))) %>%  # converting YYYY into just the last two digits of the year
   select(YYYY, MM, DD, HH) %>% # selecting columns to merge
   unite("date", YYYY:HH, sep = " ") # merging and separating by a space
-
 
 # my_locations <- tribble(
 #   ~Lat, ~Long, ~other,

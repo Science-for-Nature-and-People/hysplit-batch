@@ -1,59 +1,44 @@
 library(tidyverse)
+library(lubridate)
+library(foreach)
 
 
-#' Create the CONTROL file for the HYSPLIT model
-#'
-#' @param out_file
-#' @param date
-#' @param locations
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-create_control <- function(out_file, date, locations, dir_templates="file_templates/") {
 
-  # Build paths
-  control_file <- "CONTROL_template"
-  control_path <- file.path(dir_templates, control_file)
-  out_full <- file.path("output", out_file)
-  out_conn <- file(out_full)
+# start cluster
+nb_cores <- 4  # Aurora has 96 cores
+cl <- parallel::makeCluster(nb_cores)
+doParallel::registerDoParallel(cl)
 
-  # Read control file in
-  control_lines <- readLines(control_path)
+# EMITIMES file
+emitimes_file <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july"
 
-  # Create the parameters
-  nb_fire <- nrow(locations)
+# For the example using the same EMITIMES
+fake_dates <- seq(ymd('2012-01-07'),ymd('2012-12-22'), by = '1 month') %>% month() %>% paste0("run_", .) %>% file.path(getwd(),.)
 
-  writeLines(c(date, nb_fire), out_conn)
-  close(out_conn)
 
-  # Add lat long to file
-  write.table(locations, out_full, row.names = FALSE, col.names = FALSE, append=TRUE)
+foreach(my_folder_run = fake_dates) %dopar% {
+  source(file.path(getwd(),"hysplit_batch_functions.R"))
 
-  # Add template
-  write(control_lines, out_full, append = TRUE)
+  # creating file folder
+  dir.create(my_folder_run)
+
+  # copy the EMITIMES files
+  emitimes_run <- file.path(my_folder_run,"EMITIMES")
+  file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
+
+  # copy SETUP
+  create_setup <- create_setup(my_folder_run)
+
+  # Get information from EMITIMES
+  control_info <- read_emitimes(emitimes_run)
+
+  # Create the CONTROL file
+  control_filename <- file.path(my_folder_run, "CONTROL")
+  create_control(control_filename, control_info$date, control_info$locations, control_info$runtime)
+
+  #### Run the model #####
+
 }
 
-
-### Example ----
-filename <- "CONTROL_june"
-
-june_date <- "19 06 10 00"
-
-# Location might be more useful as a dataframe?
-my_locations <- tribble(
-  ~Lat, ~Long, ~other,
-  39.22878346, -120.9402188, 0.0,
-  39.18800813, -120.9784586, 0.0,
-  39.02006513, -120.4958493, 0.0,
-  39.2990171, -120.3189658, 0.0,
-  39.16041885, -120.6598364, 0.0,
-  39.01209315, -120.5446328, 0.0
-)
-
-# Call the function
-create_control(filename, june_date, my_locations)
-
-
+# stop cluster
+parallel::stopCluster(cl)

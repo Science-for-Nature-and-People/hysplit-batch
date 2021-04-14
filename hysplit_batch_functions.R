@@ -1,3 +1,6 @@
+library(tidyverse)
+library(lubridate)
+
 
 #' Create the CONTROL file for the HYSPLIT model
 #'
@@ -39,6 +42,8 @@ create_control <- function(out_file, date, locations, runtime, dir_templates="fi
   write(control_lines, out_full, append = TRUE) # Writing content of template is different because it's a block of text
 }
 
+
+
 #######################################################################################################################
 
 #' Create the SETUP file for the HYSPLIT model
@@ -61,6 +66,7 @@ create_setup <- function(folder_run, dir_templates="file_templates/") {
   file.copy(setup_path, file.path(folder_run,"SETUP.CFG"), overwrite = TRUE)
 
 }
+
 
 
 #######################################################################################################################

@@ -2,7 +2,7 @@ library(tidyverse)
 library(lubridate)
 library(foreach)
 
-source("hysplit_batch_functions.R")
+
 
 # start cluster
 nb_cores <- 4  # Aurora has 96 cores
@@ -12,29 +12,33 @@ doParallel::registerDoParallel(cl)
 # EMITIMES file
 emitimes_file <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july"
 
-# create folder name
-my_folder_run <- "July"
+# For the example using the same EMITIMES
+fake_dates <- seq(ymd('2012-01-07'),ymd('2012-12-22'), by = '1 month') %>% month() %>% paste0("run_", .) %>% file.path(getwd(),.)
 
-# creating file folder
-dir.create(my_folder_run)
 
-# create CONTROL filename
-filename <- file.path(my_folder_run, "CONTROL")
+foreach(my_folder_run = fake_dates) %dopar% {
+  source(file.path(getwd(),"hysplit_batch_functions.R"))
 
-# copy the EMITIMES files
-emitimes_run <- file.path(my_folder_run,"EMITIMES")
-file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
+  # creating file folder
+  dir.create(my_folder_run)
 
-# copy SETUP
-create_setup <- create_setup(my_folder_run)
+  # copy the EMITIMES files
+  emitimes_run <- file.path(my_folder_run,"EMITIMES")
+  file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
 
-# Get information from EMITIMES
-control_info <- read_emitimes(emitimes_run)
+  # copy SETUP
+  create_setup <- create_setup(my_folder_run)
 
-# Create the CONTROL file
-create_control(filename, control_info$date, control_info$locations, control_info$runtime)
+  # Get information from EMITIMES
+  control_info <- read_emitimes(emitimes_run)
 
-#### Run the model #####
+  # Create the CONTROL file
+  control_filename <- file.path(my_folder_run, "CONTROL")
+  create_control(control_filename, control_info$date, control_info$locations, control_info$runtime)
+
+  #### Run the model #####
+
+}
 
 # stop cluster
 parallel::stopCluster(cl)

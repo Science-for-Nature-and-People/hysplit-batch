@@ -1,31 +1,54 @@
 library(tidyverse)
+library(lubridate)
+library(foreach)
 
 source("hysplit_batch_functions.R")
 
 
 
-# create folder name
-folder_name <- "July"
-# creating file folder
-dir.create(folder_name)
+# EMITIMES file
+emitimes_file <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july"
 
-# create file name
-filename <- "CONTROL_june"
+# create folder name
+folder_run <- "July"
+
+# creating file folder
+dir.create(folder_run)
+
+# create CONTROL filename
+filename <- file.path(folder_run, "CONTROL")
+
+# create CONTROL filename
+filename <- file.path(folder_run, "SETUP")
+
+# copy the EMITIMES files
+file.copy(emitimes_file, file.path(folder_run,"EMITIMES"))
+
+
+
 
 # read EMITIMES file
-locations <- read_delim("/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july", delim = " ", skip = 1) %>% # skip = 1 to remove header info for the other data
+my_locations <- read_delim(emitimes_file, delim = " ", skip = 1) %>% # skip = 1 to remove header info for the other data
   slice(-1) %>% # removing the first row that contains the other information
   dplyr::select(!(X13)) # removing blank column
 
-records <- read_delim("/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july", delim = " ") %>%
+# Compute the runtime duration
+my_locations <- my_locations %>%
+  mutate(date = make_date(YYYY, MM, DD))
+
+int <- interval(min(my_locations$date), max(my_locations$date) + 1) # +1 because we want to include the last day
+my_runtime <- (time_length(int, "day") + 7) * 24 # We run the model 7 days after the last fire observation and transform to hours
+
+records <- read_delim(emitimes_file, delim = " ") %>%
   slice(2) %>%  # only selecting first row with the correct information
   dplyr::select(!(X7))
 
 # get date from EMI file
-july_date <- records %>%
+my_date <- records %>%
   mutate(YYYY = substr(YYYY, nchar(YYYY) - 1, nchar(YYYY))) %>%  # converting YYYY into just the last two digits of the year
   select(YYYY, MM, DD, HH) %>% # selecting columns to merge
-  unite("date", YYYY:HH, sep = " ") # merging and separating by a space
+  unite("date", YYYY:HH, sep = " ") %>% # merging and separating by a space
+  pull() # we want a character
 
 # my_locations <- tribble(
 #   ~Lat, ~Long, ~other,
@@ -38,6 +61,6 @@ july_date <- records %>%
 # )
 
 # # Call the function
-# create_control(filename, june_date, my_locations)
+create_control(filename, my_date, my_locations, my_runtime)
 
 

@@ -2,6 +2,49 @@ library(tidyverse)
 library(lubridate)
 
 
+
+#' Read EMITIMES file and extract necessary information to create the CONTROL file
+#'
+#' @param emitimes_file
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+read_emitimes <- function(emitimes_file) {
+  # read EMITIMES file
+  my_locations <- read_delim(emitimes_file, delim = " ", skip = 1) %>% # skip = 1 to remove header info for the other data
+    slice(-1) %>% # removing the first row that contains the other information
+    dplyr::select(!(X13)) # removing blank column
+
+  # Compute the runtime duration
+  my_locations <- my_locations %>%
+    mutate(date = make_date(YYYY, MM, DD))
+
+  int <- interval(min(my_locations$date), max(my_locations$date) + 1) # +1 because we want to include the last day
+  my_runtime <- (time_length(int, "day") + 7) * 24 # We run the model 7 days after the last fire observation and transform to hours
+
+  records <- read_delim(emitimes_file, delim = " ") %>%
+    slice(2) %>%  # only selecting first row with the correct information
+    dplyr::select(!(X7))
+
+  # get date from EMI file
+  my_date <- records %>%
+    mutate(YYYY = substr(YYYY, nchar(YYYY) - 1, nchar(YYYY))) %>%  # converting YYYY into just the last two digits of the year
+    select(YYYY, MM, DD, HH) %>% # selecting columns to merge
+    unite("date", YYYY:HH, sep = " ") %>% # merging and separating by a space
+    pull() # we want a character
+
+  # output as a list
+  list(locations = my_locations,
+       runtime = my_runtime,
+       date = my_date)
+}
+
+
+#######################################################################################################################
+
 #' Create the CONTROL file for the HYSPLIT model
 #'
 #' @param out_file
@@ -69,43 +112,3 @@ create_setup <- function(folder_run, dir_templates="file_templates/") {
 
 
 
-#######################################################################################################################
-
-#' Read EMITIMES file and extract necessary information to create the CONTROL file
-#'
-#' @param emitimes_file
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#'
-read_emitimes <- function(emitimes_file) {
-  # read EMITIMES file
-  my_locations <- read_delim(emitimes_file, delim = " ", skip = 1) %>% # skip = 1 to remove header info for the other data
-    slice(-1) %>% # removing the first row that contains the other information
-    dplyr::select(!(X13)) # removing blank column
-
-  # Compute the runtime duration
-  my_locations <- my_locations %>%
-    mutate(date = make_date(YYYY, MM, DD))
-
-  int <- interval(min(my_locations$date), max(my_locations$date) + 1) # +1 because we want to include the last day
-  my_runtime <- (time_length(int, "day") + 7) * 24 # We run the model 7 days after the last fire observation and transform to hours
-
-  records <- read_delim(emitimes_file, delim = " ") %>%
-    slice(2) %>%  # only selecting first row with the correct information
-    dplyr::select(!(X7))
-
-  # get date from EMI file
-  my_date <- records %>%
-    mutate(YYYY = substr(YYYY, nchar(YYYY) - 1, nchar(YYYY))) %>%  # converting YYYY into just the last two digits of the year
-    select(YYYY, MM, DD, HH) %>% # selecting columns to merge
-    unite("date", YYYY:HH, sep = " ") %>% # merging and separating by a space
-    pull() # we want a character
-
-  # output as a list
-  list(locations = my_locations,
-       runtime = my_runtime,
-       date = my_date)
-}

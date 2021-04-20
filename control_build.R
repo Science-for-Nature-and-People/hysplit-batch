@@ -11,12 +11,12 @@ library(tidyverse)
 #'
 #' @examples
 #'
-create_control <- function(out_file, date, locations, dir_templates="file_templates/") {
+create_control <- function(out_file, date, locations, dir_templates = "file_templates/", dir_save = "July") {
 
   # Build paths
   control_file <- "CONTROL_template"
   control_path <- file.path(dir_templates, control_file)
-  out_full <- file.path("output", out_file)
+  out_full <- file.path(dir_save, out_file) # saves to the file path you choose (currently set to July)
   out_conn <- file(out_full) # how to create file in R that you write line-by-line
 
   # Read control file in
@@ -35,16 +35,17 @@ create_control <- function(out_file, date, locations, dir_templates="file_templa
   write(control_lines, out_full, append = TRUE) # Writing content of template is different because it's a block of text
 }
 
+# creating directory (might move to inside function)
 # create folder name
 folder_name <- "July"
 # creating file folder
 dir.create(folder_name)
 
 # create file name
-filename <- "CONTROL_june"
+filename <- "CONTROL_july"
 
 # read EMITIMES file
-locations <- read_delim("/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july", delim = " ", skip = 1) %>% # skip = 1 to remove header info for the other data
+my_locations <- read_delim("/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july", delim = " ", skip = 1) %>% # skip = 1 to remove header info for the other data
   slice(-1) %>% # removing the first row that contains the other information
   dplyr::select(!(X13)) # removing blank column
 
@@ -58,8 +59,10 @@ july_date <- records %>%
   select(YYYY, MM, DD, HH) %>% # selecting columns to merge
   unite("date", YYYY:HH, sep = " ") # merging and separating by a space
 
+july_date <- as.character(july_date[1])
 
-# # Call the function
-# create_control(filename, june_date, my_locations)
+# Call the function
+create_control(filename, july_date, my_locations)
+
 
 

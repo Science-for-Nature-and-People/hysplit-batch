@@ -11,6 +11,13 @@ library(tidyverse)
 #'
 #' @examples
 #'
+
+# creating directory (might move to inside function)
+# create folder name
+folder_name <- "July"
+# creating file folder
+dir.create(folder_name)
+
 create_control <- function(out_file, date, locations, dir_templates = "file_templates/", dir_save = "July") {
 
   # Build paths
@@ -34,12 +41,6 @@ create_control <- function(out_file, date, locations, dir_templates = "file_temp
   # Add template
   write(control_lines, out_full, append = TRUE) # Writing content of template is different because it's a block of text
 }
-
-# creating directory (might move to inside function)
-# create folder name
-folder_name <- "July"
-# creating file folder
-dir.create(folder_name)
 
 # create file name
 filename <- "CONTROL_july"

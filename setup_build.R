@@ -12,31 +12,32 @@ library(tidyverse)
 #'
 #' @examples
 #'
-create_setup <- function(out_file, date, locations, dir_templates="file_templates/") {
+
+# creating directory (might move to inside function)
+# create folder name
+folder_name <- "July"
+# creating file folder
+dir.create(folder_name)
+
+create_setup <- function(out_file, date, locations, dir_templates = "file_templates/", dir_save = "July") {
 
   # Build paths
-  control_file <- "SETUPL_template"
-  control_path <- file.path(dir_templates, control_file)
-  out_conn <- file(out_file)
-  #
-  # # Read control file in
-  # control_lines <- readLines(control_path)
-  #
-  # # Create the parameters
-  # nb_fire <- nrow(locations)
-  #
-  # writeLines(c(date, nb_fire), out_conn)
-  # close(out_conn)
-  #
-  # # Add lat long to file
-  # write.table(locations, out_file, row.names = FALSE, col.names = FALSE, append=TRUE)
-  #
-  # # Add template
-  # write(control_lines, out_file, append = TRUE)
+  setup_file <- "SETUP_template"
+  setup_path <- file.path(dir_templates, setup_file)
+  out_full <- file.path(dir_save, out_file) # saves to the file path you choose (currently set to July)
+  out_conn <- file(out_full) # how to create file in R that you write line-by-line
+
+  # Read control file in
+  setup_lines <- readLines(setup_path) # reading in template
+
+  # EMITIMES file name
+  EMITMES <- "CONTROL_july"
+
+  writeLines(c(date, nb_fire), out_conn) # how you write lines for vectors. Date as one line, number fire as one line, written to out_conn file
+  close(out_conn) # closing the file
+
 }
 
-control_file <- "SETUPL_template"
-control_path <- file.path("file_templates/", control_file)
-out_conn <- file("FILE_NAME")
+# create file name
+filename <- "SETUP_july"
 
-control_lines <- readLines(control_path)

@@ -1,6 +1,5 @@
 library(tidyverse)
 
-
 #' Create the CONTROL file for the HYSPLIT model
 #'
 #' @param out_file
@@ -59,15 +58,6 @@ july_date <- records %>%
   select(YYYY, MM, DD, HH) %>% # selecting columns to merge
   unite("date", YYYY:HH, sep = " ") # merging and separating by a space
 
-# my_locations <- tribble(
-#   ~Lat, ~Long, ~other,
-#   39.22878346, -120.9402188, 0.0,
-#   39.18800813, -120.9784586, 0.0,
-#   39.02006513, -120.4958493, 0.0,
-#   39.2990171, -120.3189658, 0.0,
-#   39.16041885, -120.6598364, 0.0,
-#   39.01209315, -120.5446328, 0.0
-# )
 
 # # Call the function
 # create_control(filename, june_date, my_locations)

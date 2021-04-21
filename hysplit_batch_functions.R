@@ -13,18 +13,19 @@ library(lubridate)
 #' @examples
 #'
 read_emitimes <- function(emitimes_file) {
-  # read EMITIMES file
+  # read locations from EMITIMES file
   my_locations <- read_delim(emitimes_file, delim = " ", skip = 1) %>% # skip = 1 to remove header info for the other data
     slice(-1) %>% # removing the first row that contains the other information
     dplyr::select(!(X13)) # removing blank column
 
   # Compute the runtime duration
   my_locations <- my_locations %>%
-    mutate(date = make_date(YYYY, MM, DD))
+    mutate(date = make_date(YYYY, MM, DD)) # changing object class to Date
 
   int <- interval(min(my_locations$date), max(my_locations$date) + 1) # +1 because we want to include the last day
   my_runtime <- (time_length(int, "day") + 7) * 24 # We run the model 7 days after the last fire observation and transform to hours
 
+  # creating record line from EMITIMES file
   records <- read_delim(emitimes_file, delim = " ") %>%
     slice(2) %>%  # only selecting first row with the correct information
     dplyr::select(!(X7))

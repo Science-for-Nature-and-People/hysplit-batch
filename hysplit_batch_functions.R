@@ -59,12 +59,12 @@ read_emitimes <- function(emitimes_file) {
 #'
 #' @examples
 #'
-create_control <- function(out_file, date, locations, runtime, dir_templates="file_templates/") {
+create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir, dir_templates = "file_templates/") {
 
   # Build paths
   control_file <- "CONTROL_template"
   control_path <- file.path(dir_templates, control_file)
-  out_full <- out_file #file.path("output", out_file)
+  out_full <- out_file # file.path("output", out_file)
   out_conn <- file(out_full) # how to create file in R that you write line-by-line
 
   # Read control file in
@@ -78,6 +78,9 @@ create_control <- function(out_file, date, locations, runtime, dir_templates="fi
 
   # Add lat long to file
   write.table(locations, out_full, row.names = FALSE, col.names = FALSE, append=TRUE) # adding a table
+
+  # adding .ARL file (model forcing) and file path to ARL file
+  write(c("0", "10000.0 ", "1", arl_dir, arl_file), out_full, append = TRUE) # the lines 0, 10000.0, and 1 would have just been in the template, but it was easier not to have to split up
 
   # Add runtime
   write(runtime, out_full, append = TRUE)

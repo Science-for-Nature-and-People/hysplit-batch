@@ -34,7 +34,7 @@ foreach(my_folder_run = fake_dates) %dopar% {
 
   # Create the CONTROL file
   control_filename <- file.path(my_folder_run, "CONTROL")
-  create_control(control_filename, control_info$date, control_info$locations, control_info$runtime)
+  create_control(control_filename, control_info$date, control_info$locations, control_info$runtime, "June.ARL", "c:\\hysplit4\\met\\2019\\Jun_July\\")
 
   #### Run the model #####
 

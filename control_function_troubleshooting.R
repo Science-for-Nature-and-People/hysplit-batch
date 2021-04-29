@@ -1,9 +1,10 @@
 create_control <- function(out_file, date, locations, arl_file, arl_dir, dir_templates = "file_templates/", dir_save = "July") {
 
+  for (extension in c(".001", ".002", ".003", ".004", ".005")){
   # Build paths
   control_file <- "CONTROL_template"
   control_path <- file.path(dir_templates, control_file)
-  out_full <- file.path(dir_save, out_file) # saves to the file path you choose (currently set to July)
+  out_full <- file.path(dir_save, paste0(out_file, extension)) # saves to the file path you choose (currently set to July)
   out_conn <- file(out_full) # how to create file in R that you write line-by-line
 
   # Read control file in
@@ -19,12 +20,11 @@ create_control <- function(out_file, date, locations, arl_file, arl_dir, dir_tem
   write.table(locations, out_full, row.names = FALSE, col.names = FALSE, append=TRUE) # adding a table
 
   # adding ARl file & file path information
-  # open(out_conn)
-  # writeLines(c("0", "10000.0 ", "1", arl_dir, arl_file), out_conn)
   write(c("0", "10000.0 ", "1", arl_dir, arl_file), out_full, append = TRUE)
 
   # Add template
   write(control_lines, out_full, append = TRUE) # Writing content of template is different because it's a block of text
+  }
 }
 
 # Call the function

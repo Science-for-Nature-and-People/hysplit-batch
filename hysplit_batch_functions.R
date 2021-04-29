@@ -59,14 +59,17 @@ read_emitimes <- function(emitimes_file) {
 #'
 #' @examples
 #'
+
+extension_list <- c(".001", ".002", ".003", ".004", ".005")
+
 create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir, dir_templates = "file_templates/") {
 
-  for (extension in c(".001", ".002", ".003", ".004", ".005")){
+  for (extension in extension_list){
 
   # Build paths
   control_file <- "CONTROL_template"
   control_path <- file.path(dir_templates, control_file)
-  out_full <- out_file # file.path("output", out_file)
+  out_full <- paste0(out_file, extension) # file.path("output", out_file)
   out_conn <- file(out_full) # how to create file in R that you write line-by-line
 
   # Read control file in

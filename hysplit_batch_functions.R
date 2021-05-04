@@ -60,11 +60,9 @@ read_emitimes <- function(emitimes_file) {
 #' @examples
 #'
 
-extension_list <- c(".001", ".002", ".003", ".004", ".005")
+# extension_list <- c(".001", ".002", ".003", ".004", ".005")
 
-create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir, dir_templates = "file_templates/") {
-
-  for (extension in extension_list){
+create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir, extension, dir_templates = "file_templates/") {
 
   # Build paths
   control_file <- "CONTROL_template"
@@ -94,7 +92,7 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
   # Add template
   write(control_lines, out_full, append = TRUE) # Writing content of template is different because it's a block of text
 
-  }
+
 }
 
 #######################################################################################################################
@@ -109,16 +107,13 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
 #'
 #' @examples
 #'
-create_setup <- function(folder_run, dir_templates="file_templates/") {
+create_setup <- function(folder_run, extension, dir_templates="file_templates/") {
 
   # Build paths
   setup_file <- "SETUP_template.CFG"
   setup_path <- file.path(dir_templates, setup_file)
 
-  for (extension in extension_list){
-
   # copy the EMITIMES files
   file.copy(setup_path, file.path(folder_run, paste0("SETUP.CFG", extension)), overwrite = TRUE)
 
-  }
 }

@@ -29,14 +29,14 @@ foreach(model_run = fake_dates) %dopar% {
   file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
 
   # copy SETUP
-  create_setup <- create_setup("model_files/")
+  create_setup <- create_setup("model_files/", extension = "2012-01-07")
 
   # Get information from EMITIMES
   control_info <- read_emitimes(emitimes_run)
 
   # Create the CONTROL file
   control_filename <- file.path("model_files/", "CONTROL")
-  create_control(control_filename, control_info$date, control_info$locations, control_info$runtime, "June.ARL", "c:\\hysplit4\\met\\2019\\Jun_July\\")
+  create_control(control_filename, control_info$date, control_info$locations, control_info$runtime, "June.ARL", "c:\\hysplit4\\met\\2019\\Jun_July\\", extension = "2012-01-07")
 
   #### Run the model #####
 
@@ -44,3 +44,8 @@ foreach(model_run = fake_dates) %dopar% {
 
 # stop cluster
 parallel::stopCluster(cl)
+
+# running the model
+system("./hysplit/5.0.0/exec/hycs_std")
+system("./hysplit/5.0.0/exec/hycs_std 001")
+system("./hysplit/5.0.0/exec/hycs_std 2012-01-07")

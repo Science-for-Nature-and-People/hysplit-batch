@@ -65,14 +65,17 @@ read_emitimes <- function(emitimes_file) {
 create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir, extension, dir_templates = "file_templates/") {
 
   # Build paths
-  control_file <- "CONTROL_template"
-  control_path <- file.path(dir_templates, control_file)
+  control_file_1 <- "CONTROL_template_1"
+  control_file_2 <- "CONTROL_template_2"
+  control_path_1 <- file.path(dir_templates, control_file_1)
+  control_path_2 <- file.path(dir_templates, control_file_2)
   # out_full <- out_file # file.path("output", out_file)
   out_full <- paste0(out_file, ".", extension)
   out_conn <- file(out_full) # how to create file in R that you write line-by-line
 
   # Read control file in
-  control_lines <- readLines(control_path) # reading in template
+  control_lines_1 <- readLines(control_path_1) # reading in template
+  control_lines_2 <- readLines(control_path_2)
 
   # Create the parameters
   nb_fire <- as.character(nrow(locations))
@@ -89,9 +92,14 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
   # Add runtime
   write(runtime, out_full, append = TRUE)
 
-  # Add template
-  write(control_lines, out_full, append = TRUE) # Writing content of template is different because it's a block of text
+  # Add template part 1
+  write(control_lines_1, out_full, append = TRUE) # Writing content of template is different because it's a block of text
 
+  # Add cdump with extension
+  write(paste0("cdump", ".", extension), out_full, append = TRUE)
+
+  # adding template part 2
+  write(control_lines_2, out_full, append = TRUE)
 
 }
 
@@ -117,3 +125,4 @@ create_setup <- function(folder_run, extension, dir_templates="file_templates/")
   file.copy(setup_path, file.path(folder_run, paste0("SETUP.CFG", ".", extension)), overwrite = TRUE)
 
 }
+

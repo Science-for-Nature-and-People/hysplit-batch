@@ -27,7 +27,7 @@ foreach(model_run = fake_dates) %dopar% {
   # copy the EMITIMES files
   emitimes_run <- file.path("model_files/","EMITIMES")
   # file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
-  file.copy(emitimes_file, file.path("hysplit/5.0.0/working/", "EMITIMES"), overwrite = TRUE)
+  file.copy(emitimes_file, file.path("/home/klope/hysplit/5.0.0/working/", "EMITIMES"), overwrite = TRUE)
 
   # copy SETUP
   create_setup <- create_setup("hysplit/5.0.0/working/", extension = "")

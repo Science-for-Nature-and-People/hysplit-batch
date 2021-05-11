@@ -1,8 +1,0 @@
-&SETUP               
-initd = 0,           
-khmax = 9999,          
-numpar = 2500,      
-maxpar = 10000,      
-efile = 'EMITIMES',  
-/                    
-

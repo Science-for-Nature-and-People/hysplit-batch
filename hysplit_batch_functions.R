@@ -70,7 +70,7 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
   control_path_1 <- file.path(dir_templates, control_file_1)
   control_path_2 <- file.path(dir_templates, control_file_2)
   # out_full <- out_file # file.path("output", out_file)
-  out_full <- paste0(out_file, ".", extension)
+  out_full <- paste0(out_file, extension)
   out_conn <- file(out_full) # how to create file in R that you write line-by-line
 
   # Read control file in
@@ -96,7 +96,8 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
   write(control_lines_1, out_full, append = TRUE) # Writing content of template is different because it's a block of text
 
   # Add cdump with extension
-  write(paste0("cdump", ".", extension), out_full, append = TRUE)
+  # write(paste0("cdump", ".", extension), out_full, append = TRUE)
+  write("cdump", out_full, append = TRUE)
 
   # adding template part 2
   write(control_lines_2, out_full, append = TRUE)
@@ -122,7 +123,8 @@ create_setup <- function(folder_run, extension, dir_templates="file_templates/")
   setup_path <- file.path(dir_templates, setup_file)
 
   # copy the EMITIMES files
-  file.copy(setup_path, file.path(folder_run, paste0("SETUP.CFG", ".", extension)), overwrite = TRUE)
+  # file.copy(setup_path, file.path(folder_run, paste0("SETUP", extension, ".CFG")), overwrite = TRUE)
+  file.copy(setup_path, file.path(folder_run, "SETUP"), overwrite = TRUE)
 
 }
 

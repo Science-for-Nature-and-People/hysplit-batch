@@ -27,17 +27,19 @@ foreach(model_run = fake_dates) %dopar% {
   # copy the EMITIMES files
   emitimes_run <- file.path("model_files/","EMITIMES")
   # file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
-  file.copy(emitimes_file, file.path("/home/klope/hysplit/5.0.0/working/", "EMITIMES"), overwrite = TRUE)
+  file.copy(emitimes_file, file.path("model_files/", "EMITIMES"), overwrite = TRUE)
 
   # copy SETUP
-  create_setup <- create_setup("hysplit/5.0.0/working/", extension = "")
+  create_setup <- create_setup("model_files/", extension = "")
 
   # Get information from EMITIMES
   control_info <- read_emitimes(emitimes_run)
+  control_locations <- control_info$locations %>%
+    dplyr::select(LAT, LON)
 
   # Create the CONTROL file
-  control_filename <- file.path("hysplit/5.0.0/working/", "CONTROL")
-  create_control(control_filename, control_info$date, control_info$locations, control_info$runtime, "July.ARL", "/home/shares/snapp-wildfire/HYSPLIT_samplefiles", extension = "")
+  control_filename <- file.path("model_files", "CONTROL")
+  create_control(control_filename, control_info$date, control_locations, control_info$runtime, "July.ARL", "/home/shares/snapp-wildfire/HYSPLIT_samplefiles", extension = "")
 
   #### Run the model #####
 

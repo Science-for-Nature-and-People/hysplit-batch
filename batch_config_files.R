@@ -51,5 +51,3 @@ parallel::stopCluster(cl)
 # running the model
 system("./hysplit/5.0.0/exec/hycs_std")
 system("/home/klope/hysplit/5.0.0/exec/hycs_std")
-system("./hysplit/5.0.0/exec/hycs_std 001")
-system("./hysplit/5.0.0/exec/hycs_std 2012-01-07")

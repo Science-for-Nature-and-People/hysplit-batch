@@ -2,6 +2,9 @@ library(tidyverse)
 library(lubridate)
 library(foreach)
 
+# folder to save model files
+dir.create("/home/klope/run")
+
 # set working directory
 setwd("/home/klope/run")
 
@@ -15,9 +18,6 @@ emitimes_file <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july"
 
 # For the example using the same EMITIMES
 fake_dates <- seq(ymd('2012-01-07'),ymd('2012-12-22'), by = '1 month') %>% month() %>% paste0("run_", .) %>% file.path(getwd(),.)
-
-# folder to save model files
-dir.create("/home/klope/run")
 
 # # create extension list
 # extensions <- seq(0, (length(fake_dates)/1000), by = 0.001)

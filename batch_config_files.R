@@ -2,7 +2,8 @@ library(tidyverse)
 library(lubridate)
 library(foreach)
 
-
+# set working directory
+setwd("/home/klope/run")
 
 # start cluster
 nb_cores <- 4  # Aurora has 96 cores
@@ -16,13 +17,13 @@ emitimes_file <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/EMITIMES_july"
 fake_dates <- seq(ymd('2012-01-07'),ymd('2012-12-22'), by = '1 month') %>% month() %>% paste0("run_", .) %>% file.path(getwd(),.)
 
 # folder to save model files
-# dir.create("model_files")
+dir.create("/home/klope/run")
 
 # # create extension list
 # extensions <- seq(0, (length(fake_dates)/1000), by = 0.001)
 
 foreach(model_run = fake_dates) %dopar% {
-  source(file.path(getwd(),"hysplit_batch_functions.R"))
+  source(file.path("/home/klope/run","hysplit_batch_functions.R"))
 
   # copy the EMITIMES files
   emitimes_run <- file.path("/home/klope/","EMITIMES")
@@ -42,6 +43,7 @@ foreach(model_run = fake_dates) %dopar% {
   create_control(control_filename, control_info$date, control_locations, control_info$runtime, "July.ARL", "/home/klope/hysplit/5.0.0/working/", extension = "")
 
   #### Run the model #####
+  system("../hysplit/5.0.0/exec/hycs_std")
 
 }
 
@@ -49,5 +51,7 @@ foreach(model_run = fake_dates) %dopar% {
 parallel::stopCluster(cl)
 
 # running the model
-system("./hysplit/5.0.0/exec/hycs_std")
-system("/home/klope/hysplit/5.0.0/exec/hycs_std")
+# setwd("/home/klope/R/hysplit-batch/hysplit/5.0.0/working")
+# system("./home/klope/R/hysplit-batch/hysplit/5.0.0/exec/hycs_std")
+
+

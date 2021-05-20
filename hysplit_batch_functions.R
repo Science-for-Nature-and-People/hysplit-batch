@@ -119,11 +119,21 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
 create_setup <- function(folder_run, extension, dir_templates="file_templates/") {
 
   # Build paths
-  setup_file <- "SETUP_template.CFG"
-  setup_path <- file.path(dir_templates, setup_file)
+  setup_template <- "SETUP_template.CFG"
+  setup_path <- file.path(dir_templates, setup_template)
+  setup_lines <- readLines(setup_path)
+  # efile = 'EMITIMES',
+  # /
+
+  # Output filename
+  setup_file <- file.path(folder_run, paste0("SETUP.", extension))
+
+  # Add lines
+  write(c(paste0("efile = 'EMITIMES", ".", extension,"'")), setup_file, append = TRUE)
+  write("/", setup_file, append = TRUE)
 
   # copy the EMITIMES files
-  file.copy(setup_path, file.path(folder_run, paste0("SETUP.", extension)), overwrite = TRUE)
+  # file.copy(setup_path, file.path(folder_run, paste0("SETUP.", extension)), overwrite = TRUE)
   # file.copy(setup_path, file.path(folder_run, "SETUP"), overwrite = TRUE)
 
 }

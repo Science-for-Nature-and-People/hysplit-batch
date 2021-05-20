@@ -121,15 +121,13 @@ create_setup <- function(folder_run, extension, dir_templates="file_templates/")
   # Build paths
   setup_template <- "SETUP_template.CFG"
   setup_path <- file.path(dir_templates, setup_template)
-  setup_lines <- readLines(setup_path)
-  # efile = 'EMITIMES',
-  # /
+  file.copy(setup_path, file.path(folder_run, paste0("SETUP.", extension)), overwrite = TRUE)
 
   # Output filename
   setup_file <- file.path(folder_run, paste0("SETUP.", extension))
 
   # Add lines
-  write(c(paste0("efile = 'EMITIMES", ".", extension,"'")), setup_file, append = TRUE)
+  write(paste0("efile = 'EMITIMES", ".", extension,"'"), setup_file, append = TRUE)
   write("/", setup_file, append = TRUE)
 
   # copy the EMITIMES files

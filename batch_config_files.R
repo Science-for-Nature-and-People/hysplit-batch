@@ -11,7 +11,7 @@ dir.create("~/run", showWarnings = FALSE)
 # setwd("~/run")
 
 # start cluster
-nb_cores <- 6  # Aurora has 96 cores
+nb_cores <- 12  # Aurora has 96 cores
 cl <- parallel::makeCluster(nb_cores)
 doParallel::registerDoParallel(cl)
 
@@ -52,7 +52,7 @@ foreach(model_run = fake_dates) %dopar% {
   #### Run the model #####
   repo <- getwd()
   setwd("~/run")
-  system("../hysplit/5.0.0/exec/hycs_std 2012-12-07")
+  system(sprintf("../hysplit/5.0.0/exec/hycs_std %s", model_run))
   setwd(repo)
 
 }

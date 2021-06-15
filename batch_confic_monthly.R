@@ -7,6 +7,8 @@ library(foreach)
 
 
 ## Paths and files
+aurora_user <- "klope" # user folder name on aurora
+repo_dir <- file.path("/home", aurora_user, "R/hysplit-batch") # git repo directory
 shared_dir <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/"
 run_dir <- "~/run2"
 # folder to save model files in your home directory
@@ -36,9 +38,7 @@ arl_files <- c("June", "July", "Aug")
 
 ## MAIN loop
 foreach(model_run = arl_files) %dopar% {
-  # setwd("/home/klope/R/hysplit-batch")
-  # source(file.path("/home/klope/R/hysplit-batch","hysplit_batch_functions.R"))
-  source(file.path(getwd(),"hysplit_batch_functions.R"))
+  source(file.path(repo_dir,"hysplit_batch_functions.R"))
 
   # copy the EMITIMES files
   emitimes_file <- file.path(shared_dir, paste0("EMITIMES_", tolower(model_run)))
@@ -46,7 +46,7 @@ foreach(model_run = arl_files) %dopar% {
   file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
 
   # copy SETUP
-  create_setup <- create_setup(run_dir, extension = model_run, dir_templates =  "/home/klope/run2/file_templates/")
+  create_setup <- create_setup(run_dir, extension = model_run, dir_templates =  file.path(repo_dir,"file_templates"))
 
   # Get information from EMITIMES
   control_info <- read_emitimes(emitimes_run)
@@ -63,7 +63,7 @@ foreach(model_run = arl_files) %dopar% {
                  arl_file = paste0(model_run, ".ARL"),
                  "./",
                  extension = model_run,
-                 dir_templates =  "/home/klope/run2/file_templates/")
+                 dir_templates =  file.path(repo_dir,"file_templates"))
 
 
   #### Run the model #####

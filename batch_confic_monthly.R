@@ -14,10 +14,14 @@ run_dir <- "~/run2"
 # folder to save model files in your home directory
 dir.create(run_dir, showWarnings = FALSE)
 
+# create simlink of .ARL files into the working directory (now set to run_dir folder)
+system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/June.ARL June.ARL")
+system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/July.ARL July.ARL")
+system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/Aug.ARL Aug.ARL")
 
 # Move the files you need to run the model
 file.copy(file.path(shared_dir,"ASCDATA.CFG"), run_dir, overwrite = TRUE)
-file.copy(list.files(path = shared_dir, pattern = ".ARL", full.names = TRUE), run_dir, overwrite = FALSE) # To be changed as we do not want to move those files around
+# file.copy(list.files(path = shared_dir, pattern = ".ARL", full.names = TRUE), run_dir, overwrite = FALSE) # To be changed as we do not want to move those files around
 
 ## Start cluster
 nb_cores <- 12  # Aurora has 96 cores

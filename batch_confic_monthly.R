@@ -24,17 +24,8 @@ nb_cores <- 12  # Aurora has 96 cores
 cl <- parallel::makeCluster(nb_cores)
 doParallel::registerDoParallel(cl)
 
-
-## Prepare the list of dates to iterate through
-# EMITIMES file
-# emitimes_file <- file.path(shared_dir,"EMITIMES_july")
-
-# For the example using the same EMITIMES
-# fake_dates <- seq(ymd('2012-01-07'), ymd('2012-12-22'), by = '1 month')
-
 # list of ARL files
 arl_files <- c("June", "July", "Aug")
-
 
 ## MAIN loop
 foreach(model_run = arl_files) %dopar% {
@@ -54,8 +45,7 @@ foreach(model_run = arl_files) %dopar% {
     dplyr::select(LAT, LON)
 
   # Create the CONTROL file
-  # control_filename <- file.path(run_dir, "CONTROL")
-  control_filename <- file.path("/home/klope/run2", "CONTROL")
+  control_filename <- file.path(run_dir, "CONTROL")
   create_control(control_filename,
                  control_info$date,
                  control_locations,
@@ -76,9 +66,3 @@ foreach(model_run = arl_files) %dopar% {
 
 # stop cluster
 parallel::stopCluster(cl)
-
-
-
-# running the model
-# setwd("/home/klope/run")
-# system("../hysplit/5.0.0/exec/hycs_std")

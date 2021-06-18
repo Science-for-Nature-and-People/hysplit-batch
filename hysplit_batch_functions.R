@@ -59,16 +59,23 @@ read_emitimes <- function(emitimes_file) {
 #'
 #' @examples
 #'
-create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir, dir_templates = "file_templates/") {
+
+# extension_list <- c(".001", ".002", ".003", ".004", ".005")
+
+create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir, extension, dir_templates = "file_templates/") {
 
   # Build paths
-  control_file <- "CONTROL_template"
-  control_path <- file.path(dir_templates, control_file)
-  out_full <- out_file # file.path("output", out_file)
+  control_file_1 <- "CONTROL_template_1"
+  control_file_2 <- "CONTROL_template_2"
+  control_path_1 <- file.path(dir_templates, control_file_1)
+  control_path_2 <- file.path(dir_templates, control_file_2)
+  # out_full <- out_file # file.path("output", out_file)
+  out_full <- paste0(out_file,".", extension)
   out_conn <- file(out_full) # how to create file in R that you write line-by-line
 
   # Read control file in
-  control_lines <- readLines(control_path) # reading in template
+  control_lines_1 <- readLines(control_path_1) # reading in template
+  control_lines_2 <- readLines(control_path_2)
 
   # Create the parameters
   nb_fire <- as.character(nrow(locations))
@@ -79,18 +86,23 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
   # Add lat long to file
   write.table(locations, out_full, row.names = FALSE, col.names = FALSE, append=TRUE) # adding a table
 
-  # adding .ARL file (model forcing) and file path to ARL file
-  write(c("0", "10000.0 ", "1", arl_dir, arl_file), out_full, append = TRUE) # the lines 0, 10000.0, and 1 would have just been in the template, but it was easier not to have to split up
-
   # Add runtime
   write(runtime, out_full, append = TRUE)
 
-  # Add template
-  write(control_lines, out_full, append = TRUE) # Writing content of template is different because it's a block of text
+  # adding .ARL file (model forcing) and file path to ARL file
+  write(c("0", "10000.0 ", "1", arl_dir, arl_file), out_full, append = TRUE) # the lines 0, 10000.0, and 1 would have just been in the template, but it was easier not to have to split up
+
+  # Add template part 1
+  write(control_lines_1, out_full, append = TRUE) # Writing content of template is different because it's a block of text
+
+  # Add cdump with extension
+  # write(paste0("cdump", ".", extension), out_full, append = TRUE)
+  write(paste0("cdump.", extension), out_full, append = TRUE)
+
+  # adding template part 2
+  write(control_lines_2, out_full, append = TRUE)
+
 }
-
-
-
 
 #######################################################################################################################
 
@@ -104,16 +116,23 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
 #'
 #' @examples
 #'
-create_setup <- function(folder_run, dir_templates="file_templates/") {
+create_setup <- function(folder_run, extension, dir_templates="file_templates/") {
 
   # Build paths
-  setup_file <- "SETUP_template.CFG"
-  setup_path <- file.path(dir_templates, setup_file)
+  setup_template <- "SETUP_template.CFG"
+  setup_path <- file.path(dir_templates, setup_template)
+  file.copy(setup_path, file.path(folder_run, paste0("SETUP.", extension)), overwrite = TRUE)
+
+  # Output filename
+  setup_file <- file.path(folder_run, paste0("SETUP.", extension))
+
+  # Add lines
+  write(paste0("efile = 'EMITIMES", ".", extension,"'"), setup_file, append = TRUE)
+  write("/", setup_file, append = TRUE)
 
   # copy the EMITIMES files
-  file.copy(setup_path, file.path(folder_run,"SETUP.CFG"), overwrite = TRUE)
+  # file.copy(setup_path, file.path(folder_run, paste0("SETUP.", extension)), overwrite = TRUE)
+  # file.copy(setup_path, file.path(folder_run, "SETUP"), overwrite = TRUE)
 
 }
-
-
 

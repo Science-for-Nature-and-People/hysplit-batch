@@ -15,52 +15,62 @@ library(foreach)
 
 ## Paths and files
 
+Because we are relying on a lot of large files, we will be relying on different file paths to access your user's github repo, the shared project directory on the server (Aurora), and creating a new directory to create the necessary hysplit files in
+
+For the large .ARL files, we will be creating Symlinks (symbolic link), which will reference the original files without having to copy them over. We do this because hysplit requires the .ARLs to be in the same folder as the other files, but they are time-consuming to copy.
+
 ```{r}
 # creating file paths to different directories
 
 # github repo directory
-aurora_user <- "klope" # user folder name on aurora
-repo_dir <- file.path("/home", aurora_user, "R/hysplit-batch") # git repo directory
+aurora_user <- "klope" # user folder name on Aurora (commonly your last name)
+repo_dir <- file.path("/home", aurora_user, "R/hysplit-batch") # creates a file path to your github repo to reference below
 
 # shared project folder on aurora
-shared_dir <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/"
+shared_dir <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/" # same for all Aurora users
 
 # folder to save model files in your home directory
-run_dir <- "~/run2"
-dir.create(run_dir, showWarnings = FALSE)
+run_dir <- "~/run2" # the name of your folder, can change to whatever you prefer
+dir.create(run_dir, showWarnings = FALSE) # creates the folder (will not copy over if you run again)
 
-# create Symlink of .ARL files into the working directory (now set to run_dir folder)
-system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/June.ARL June.ARL")
+# create Symlinks of .ARL files into the working directory
+# uses system() to run terminal command, could alternatively run in the RStudio Terminal.
+system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/June.ARL June.ARL") 
 system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/July.ARL July.ARL")
 system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/Aug.ARL Aug.ARL")
 
-# Move the files you need to run the model
-file.copy(file.path(shared_dir,"ASCDATA.CFG"), run_dir, overwrite = TRUE) # copying ASCDATA.CFG file from the shared project directory
+# Copying ASCDATA.CFG file from the shared project directory
+file.copy(file.path(shared_dir,"ASCDATA.CFG"), run_dir, overwrite = TRUE)
 
 ```
 
-## Function Setup
-
+## Loop Setup
 ```{r}
 
-## Start cluster
+# Start cluster to use for parallelization
 nb_cores <- 12  # Aurora has 96 cores
 cl <- parallel::makeCluster(nb_cores)
 doParallel::registerDoParallel(cl)
 
-# list of ARL files
+# list of ARL files that the loop will cycle through. 
+# Must match the names of the .ARL files
+# Will use in the created file names (Ex: cdumb.June, SETUP.Aug)
 arl_files <- c("June", "July", "Aug")
 
 ```
 
 ## Hysplit Loop
 
-This loop runs in parralell using the foreach() function.  
+This loop runs in parallel using the foreach() function. For each month, it:
+1) Copies over the EMITMES file
+2) Creates the SETUP file
+3) Creates the CONTROL file
+4) Runs the hysplit model using the system() command
 
 ```{r}
 foreach(model_run = arl_files) %dopar% {
   
-  # reading in the functions
+  # reading in the functions from the "hysplit_batch_functions" script
   source(file.path(repo_dir,"hysplit_batch_functions.R"))
 
   # copy the EMITIMES files

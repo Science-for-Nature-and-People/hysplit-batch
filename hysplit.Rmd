@@ -33,12 +33,6 @@ shared_dir <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/" # same for all 
 run_dir <- "~/run2" # the name of your folder, can change to whatever you prefer
 dir.create(run_dir, showWarnings = FALSE) # creates the folder (will not copy over if you run again)
 
-# create Symlinks of .ARL files into the working directory
-# uses system() to run terminal command, could alternatively run in the RStudio Terminal.
-system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/June.ARL June.ARL") 
-system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/July.ARL July.ARL")
-system("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/Aug.ARL Aug.ARL")
-
 # Copying ASCDATA.CFG file from the shared project directory
 file.copy(file.path(shared_dir,"ASCDATA.CFG"), run_dir, overwrite = TRUE)
 
@@ -70,6 +64,10 @@ This loop runs in parallel using the foreach() function. For each month, it:
 ```{r}
 foreach(model_run = arl_files) %dopar% {
   
+  # create Symlinks of .ARL files into the working directory
+  # uses system() to run terminal command
+  system(sprintf("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/%s %s", paste0(model_run, ".ARL"), paste0(run_dir, "/", model_run, ".ARL")))
+
   # reading in the functions from the "hysplit_batch_functions" script
   source(file.path(repo_dir,"hysplit_batch_functions.R"))
 
@@ -108,6 +106,8 @@ foreach(model_run = arl_files) %dopar% {
 
 # stop cluster to end parellelization
 parallel::stopCluster(cl)
+
+system(sprintf("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/%s %s", paste0("July", ".ARL"), paste0(run_dir, "/", "July", ".ARL")))
 
 ```
 

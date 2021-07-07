@@ -23,15 +23,15 @@ For the large .ARL files, we will be creating Symlinks (symbolic link), which wi
 # creating file paths to different directories
 
 # github repo directory
-aurora_user <- "klope" # user folder name on Aurora (commonly your last name)
+aurora_user <- "brun" # user folder name on Aurora (commonly your last name)
 repo_dir <- file.path("/home", aurora_user, "R/hysplit-batch") # creates a file path to your github repo to reference below
+
+# folder to save model files in your home directory
+run_dir <- "~/run3" # the name of your folder, can change to whatever you prefer
+dir.create(run_dir, showWarnings = FALSE) # creates the folder (will not copy over if you run again)
 
 # shared project folder on aurora
 shared_dir <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/" # same for all Aurora users
-
-# folder to save model files in your home directory
-run_dir <- "~/run2" # the name of your folder, can change to whatever you prefer
-dir.create(run_dir, showWarnings = FALSE) # creates the folder (will not copy over if you run again)
 
 # Copying ASCDATA.CFG file from the shared project directory
 file.copy(file.path(shared_dir,"ASCDATA.CFG"), run_dir, overwrite = TRUE)
@@ -106,8 +106,6 @@ foreach(model_run = arl_files) %dopar% {
 
 # stop cluster to end parellelization
 parallel::stopCluster(cl)
-
-system(sprintf("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/%s %s", paste0("July", ".ARL"), paste0(run_dir, "/", "July", ".ARL")))
 
 ```
 

@@ -1,0 +1,4 @@
+2               # number of defined pollutants
+PM_WF           # name of WF PM2.5 pollutant
+2.4             # emissions rate - doesn't matter, model will look to EMITIMES for this
+11              # release duration - doesn't matter, model will look to EMITIMES for this

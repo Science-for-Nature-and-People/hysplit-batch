@@ -1,3 +1,15 @@
+81 02 04 00
+4
+25.0 -123.0 0.0
+25.1 -123.3 0.0
+24.5 -123.2 0.0
+25.9 -122.0 0.0
+576             #number of hours from start of first emissions to last emission + 15 days
+0
+10000.0
+1
+./
+WRF_8102
 2               # number of defined pollutants
 PM_WF           # name of WF PM2.5 pollutant
 2.4             # emissions rate - doesn't matter, model will look to EMITIMES for this
@@ -6,8 +18,26 @@ PM_WF           # name of WF PM2.5 pollutant
 PM_RX           # name of WF PM2.5 pollutant
 2.4	        # emissions rate - doesn't matter, model will look to EMITIMES for this
 6	        # release duration - doesn't matter, model will look to EMITIMES for this
-81 02 14 06 00   # start date/time (same for both pollutants)1
+81 02 14 06 00   # start date/time (same for both pollutants)
+1
 0.0 0.0
 0.05 0.05
 30.0 30.0
 ./
+cdump
+1
+100
+00 00 00 00 00
+00 00 00 00 00
+00 12 00
+2
+0.0 0.0 0.0
+0.0 0.0 0.0 0.0 0.0
+0.0 0.0 0.0
+0.0
+0.0
+0.0 0.0 0.0
+0.0 0.0 0.0 0.0 0.0
+0.0 0.0 0.0
+0.0
+0.0

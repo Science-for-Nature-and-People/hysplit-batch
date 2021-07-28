@@ -100,6 +100,7 @@ foreach(model_run = arl_files) %dopar% {
   repo <- getwd() # saves current working directory
   setwd(run_dir) # saves working directory to the run folder
   system(sprintf("../hysplit/5.0.0/exec/hycs_std %s", model_run)) # runs the command line function for hysplit
+  #convert to text file here
   setwd(repo) # resets the working directory
 
 }

@@ -81,14 +81,12 @@ foreach(model_run = arl_files) %dopar% {
 
   # Get information from EMITIMES file that is needed in the CONTROL file
   control_info <- read_emitimes(emitimes_run)
-  control_locations <- control_info$locations %>%
-    dplyr::select(LAT, LON)
 
   # Create the CONTROL file
   control_filename <- file.path(run_dir, "CONTROL")
   create_control(control_filename,
                  control_info$date,
-                 control_locations,
+                 control_info$locations,
                  control_info$runtime,
                  arl_file = paste0(model_run, ".ARL"),
                  "./",

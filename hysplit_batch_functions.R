@@ -102,8 +102,15 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
   # Add runtime
   write(runtime, out_full, append = TRUE)
 
+  #number of files (should be 12 as we are running montly for a year)
+  nb_files <- length(arl_file)
+  if (nb_files != 12)
+
   # adding .ARL file (model forcing) and file path to ARL file
-  write(c("0", "10000.0 ", "1", arl_dir, arl_file), out_full, append = TRUE) # the lines 0, 10000.0, and 1 could have just been in the template, but it was easier not to have to split up
+  write(c("0", "10000.0", nb_files), out_full, append = TRUE) # the lines 0, 10000.0, and 1 could have just been in the template, but it was easier not to have to split up
+
+  # adding the files and paths
+  write(rbind("/.", arl_file), out_full, append = TRUE)
 
   # Add template pollutant 1
   write(c(control_lines_1, date), out_full, append = TRUE) # Writing content of template is different because it's a block of text

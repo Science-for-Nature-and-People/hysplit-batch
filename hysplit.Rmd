@@ -31,28 +31,15 @@ run_dir <- "~/run3" # the name of your folder, can change to whatever you prefer
 dir.create(run_dir, showWarnings = FALSE) # creates the folder (will not copy over if you run again)
 
 # shared project folder on aurora
-shared_dir <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles/" # same for all Aurora users
+shared_dir <- "/home/shares/snapp-wildfire/HYSPLIT_samplefiles" # same for all Aurora users
+
+# WRF files
+wrf_dir <-"/home/shares/snapp-wildfire/WRF"
 
 # Copying ASCDATA.CFG file from the shared project directory
 file.copy(file.path(shared_dir,"ASCDATA.CFG"), run_dir, overwrite = TRUE)
 
 ```
-
-## Loop Setup
-```{r}
-
-# Start cluster to use for parallelization
-nb_cores <- 12  # Aurora has 96 cores
-cl <- parallel::makeCluster(nb_cores)
-doParallel::registerDoParallel(cl)
-
-# list of ARL files that the loop will cycle through. 
-# Must match the names of the .ARL files
-# Will use in the created file names (Ex: cdumb.June, SETUP.Aug)
-arl_files <- c("June", "July", "Aug")
-
-```
-
 ## Hysplit Loop
 
 This loop runs in parallel using the foreach() function. For each month, it:
@@ -60,13 +47,39 @@ This loop runs in parallel using the foreach() function. For each month, it:
 2) Creates the SETUP file
 3) Creates the CONTROL file
 4) Runs the hysplit model using the system() command
-
 ```{r}
-foreach(model_run = arl_files) %dopar% {
+
+# Start cluster to use for parallel computing
+nb_cores <- 12  # Aurora has 96 cores
+cl <- parallel::makeCluster(nb_cores)
+doParallel::registerDoParallel(cl)
+
+# list of ARL files that the loop will cycle through. 
+# Must match the names of the .ARL files
+# Will use in the created file names (Ex: cdumb.June, SETUP.Aug)
+
+# Year of the run (to be changed in a loop)
+run_year = "1981"
+
+# Build the path for the specific year
+arl_year_path <- file.path(wrf_dir, run_year)
+
+# List all the ARL files
+arl_files <- list.files(path = arl_year_path, pattern = "ARL")
+
+# Create symlink for the ARL/forcing files
+system(sprintf("ln -s %s %s", arl_year_path, file.path(run_dir, run_year)))
+
+# List all the EMITFILES
+emmitimes_files <- list.files(path = shared_dir, pattern = "Scenario")
+emmitimes_files
+
+
+foreach(scenarios_file = emmitimes_files) %dopar% {
   
-  # create Symlinks of .ARL files into the working directory
-  # uses system() to run terminal command
-  system(sprintf("ln -s /home/shares/snapp-wildfire/HYSPLIT_samplefiles/%s %s", paste0(model_run, ".ARL"), paste0(run_dir, "/", model_run, ".ARL")))
+  model_run <- gsub("^[^_]*_", replacement = "", scenarios_file) 
+  model_run <- gsub("\\.[^.]*$", replacement = "", model_run) 
+
 
   # reading in the functions from the "hysplit_batch_functions" script
   source(file.path(repo_dir,"hysplit_batch_functions.R"))
@@ -77,7 +90,7 @@ foreach(model_run = arl_files) %dopar% {
   file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
 
   # create the SETUP file
-  create_setup <- create_setup(run_dir, extension = model_run, dir_templates =  file.path(repo_dir,"file_templates"))
+  create_setup <- create_setup(run_dir, extension = model_run, dir_templates = file.path(repo_dir,"file_templates"))
 
   # Get information from EMITIMES file that is needed in the CONTROL file
   control_info <- read_emitimes(emitimes_run)
@@ -88,10 +101,10 @@ foreach(model_run = arl_files) %dopar% {
                  control_info$date,
                  control_info$locations,
                  control_info$runtime,
-                 arl_file = paste0(model_run, ".ARL"),
-                 "./",
+                 arl_file = arl_files, #paste0(model_run, ".ARL"),
+                 arl_dir = "./",
                  extension = model_run,
-                 dir_templates =  file.path(repo_dir,"file_templates"))
+                 dir_templates =  file.path(repo_dir, "file_templates"))
 
 
   #### Run the model #####

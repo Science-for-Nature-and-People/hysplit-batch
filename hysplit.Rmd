@@ -70,8 +70,8 @@ arl_files <- list.files(path = arl_year_path, pattern = "ARL")
 # Create symlink for the ARL/forcing files
 system(sprintf("ln -s %s/*.ARL %s", arl_year_path, file.path(run_dir)))
 
-# List all the EMITFILES
-emmitimes_files <- list.files(path = shared_dir, pattern = "Scenario")
+# List all the EMITFILES for this specific year
+emmitimes_files <- list.files(path = shared_dir, pattern = sprintf("^Scenario.*(%s)", run_year))
 emmitimes_files
 
 

@@ -27,8 +27,9 @@ read_emitimes <- function(emitimes_file) {
   my_runtime <- (time_length(my_int, "day") + rundays_afterlastfire) * 24 # We add 15 days after the last fire observation and transform to hours
 
   # creating record line from EMITIMES file
-  records <- read_delim(emitimes_file, delim = " ") %>%
-    slice(2)   # only selecting first row with the correct information
+  rec_headers <- read_delim(emitimes_file, delim = " ", n_max = 1, col_names = FALSE) %>% as.character()
+  records <- read_delim(emitimes_file, delim = " ", skip = 2, n_max = 1, col_names = FALSE)
+  names(records) <- rec_headers
 
   # get date from EMI file
   my_date <- records %>%
@@ -104,13 +105,14 @@ create_control <- function(out_file, date, locations, runtime, arl_file, arl_dir
 
   #number of files (should be 12 as we are running montly for a year)
   nb_files <- length(arl_file)
-  if (nb_files != 12)
+  message(sprintf("\nthere are %s ARL files", nb_files))
 
   # adding .ARL file (model forcing) and file path to ARL file
   write(c("0", "10000.0", nb_files), out_full, append = TRUE) # the lines 0, 10000.0, and 1 could have just been in the template, but it was easier not to have to split up
 
   # adding the files and paths
-  write(rbind("/.", arl_file), out_full, append = TRUE)
+  arl_run_path <- rbind(arl_dir, arl_file)
+  write(arl_run_path, out_full, append = TRUE)
 
   # Add template pollutant 1
   write(c(control_lines_1, date), out_full, append = TRUE) # Writing content of template is different because it's a block of text

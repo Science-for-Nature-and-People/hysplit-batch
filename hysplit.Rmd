@@ -24,7 +24,7 @@ For the large .ARL files, we will be creating Symlinks (symbolic link), which wi
 
 # github repo directory
 aurora_user <- "brun" # user folder name on Aurora (commonly your last name)
-repo_dir <- file.path("/home", aurora_user, "R/hysplit-batch") # creates a file path to your github repo to reference below
+repo_dir <- getwd() # creates a file path to your github repo to reference below
 
 # folder to save model files in your home directory
 run_dir <- "~/run3" # the name of your folder, can change to whatever you prefer
@@ -50,47 +50,51 @@ This loop runs in parallel using the foreach() function. For each month, it:
 ```{r}
 
 # Start cluster to use for parallel computing
-nb_cores <- 12  # Aurora has 96 cores
-cl <- parallel::makeCluster(nb_cores)
-doParallel::registerDoParallel(cl)
+# nb_cores <- 12  # Aurora has 96 cores
+# cl <- parallel::makeCluster(nb_cores)
+# doParallel::registerDoParallel(cl)
 
 # list of ARL files that the loop will cycle through. 
 # Must match the names of the .ARL files
 # Will use in the created file names (Ex: cdumb.June, SETUP.Aug)
 
 # Year of the run (to be changed in a loop)
+
 run_year = "1981"
 
 # Build the path for the specific year
 arl_year_path <- file.path(wrf_dir, run_year)
-
 # List all the ARL files
 arl_files <- list.files(path = arl_year_path, pattern = "ARL")
 
 # Create symlink for the ARL/forcing files
-system(sprintf("ln -s %s %s", arl_year_path, file.path(run_dir, run_year)))
+system(sprintf("ln -s %s/*.ARL %s", arl_year_path, file.path(run_dir)))
 
 # List all the EMITFILES
 emmitimes_files <- list.files(path = shared_dir, pattern = "Scenario")
 emmitimes_files
 
 
-foreach(scenarios_file = emmitimes_files) %dopar% {
+foreach(scenarios_file = emmitimes_files) %do% {
   
-  model_run <- gsub("^[^_]*_", replacement = "", scenarios_file) 
-  model_run <- gsub("\\.[^.]*$", replacement = "", model_run) 
+  # build model run name with extension
+  model_run_ext <- gsub("^[^_]*_", replacement = "", scenarios_file) 
+  # build model run name without extension
+  model_run <- gsub("\\.[^.]*$", replacement = "", model_run_ext) 
 
 
   # reading in the functions from the "hysplit_batch_functions" script
   source(file.path(repo_dir,"hysplit_batch_functions.R"))
 
   # copy the EMITIMES files
-  emitimes_file <- file.path(shared_dir, paste0("EMITIMES_", tolower(model_run)))
+  emitimes_file <- file.path(shared_dir, paste0("Scenario_", tolower(model_run_ext)))
+  message(emitimes_file)
   emitimes_run <- file.path(run_dir, paste0("EMITIMES", ".", model_run))
+  message(emitimes_run)
   file.copy(emitimes_file, emitimes_run, overwrite = TRUE)
 
   # create the SETUP file
-  create_setup <- create_setup(run_dir, extension = model_run, dir_templates = file.path(repo_dir,"file_templates"))
+  create_setup <- create_setup(run_dir, extension = model_run, dir_templates = file.path(repo_dir, "file_templates"))
 
   # Get information from EMITIMES file that is needed in the CONTROL file
   control_info <- read_emitimes(emitimes_run)
@@ -116,8 +120,11 @@ foreach(scenarios_file = emmitimes_files) %dopar% {
 
 }
 
+# removing the symlink
+system(sprintf("rm %s/*.ARL", run_dir))
+
 # stop cluster to end parellelization
-parallel::stopCluster(cl)
+# parallel::stopCluster(cl)
 
 ```
 

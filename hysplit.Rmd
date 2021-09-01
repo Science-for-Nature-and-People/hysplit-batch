@@ -50,9 +50,9 @@ This loop runs in parallel using the foreach() function. For each month, it:
 ```{r}
 
 # Start cluster to use for parallel computing
-# nb_cores <- 12  # Aurora has 96 cores
-# cl <- parallel::makeCluster(nb_cores)
-# doParallel::registerDoParallel(cl)
+nb_cores <- 12  # Aurora has 96 cores
+cl <- parallel::makeCluster(nb_cores)
+doParallel::registerDoParallel(cl)
 
 # list of ARL files that the loop will cycle through. 
 # Must match the names of the .ARL files
@@ -75,7 +75,7 @@ emmitimes_files <- list.files(path = shared_dir, pattern = sprintf("^Scenario.*(
 emmitimes_files
 
 
-foreach(scenarios_file = emmitimes_files) %do% {
+foreach(scenarios_file = emmitimes_files) %dopar% {
   
   # build model run name with extension
   model_run_ext <- gsub("^[^_]*_", replacement = "", scenarios_file) 
@@ -124,7 +124,7 @@ foreach(scenarios_file = emmitimes_files) %do% {
 system(sprintf("rm %s/*.ARL", run_dir))
 
 # stop cluster to end parellelization
-# parallel::stopCluster(cl)
+parallel::stopCluster(cl)
 
 ```
 

@@ -1,3 +1,6 @@
+## Set of functions to batch create the various files needed to run the HYSPLIT model (https://www.arl.noaa.gov/hysplit/)
+## brun@nceas.ucsb.edu
+
 library(tidyverse)
 library(lubridate)
 

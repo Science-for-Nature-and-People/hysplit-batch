@@ -1,5 +1,6 @@
 ---
-title: "hysplit"
+title: "hysplit batch processing"
+author: "Julien Brun, brun@nceas.ucsb.edu"
 output: html_document
 ---
 
@@ -15,9 +16,13 @@ library(foreach)
 
 ## Paths and files
 
-Because we are relying on a lot of large files, we will be relying on different file paths to access your user's github repo, the shared project directory on the server (Aurora), and creating a new directory to create the necessary hysplit files in
+Because we are processing a lot of large files, we will be relying on different file paths to access:
 
-For the large .ARL files, we will be creating Symlinks (symbolic link), which will reference the original files without having to copy them over. We do this because hysplit requires the .ARLs to be in the same folder as the other files, but they are time-consuming to copy.
+- your user's github repo
+- the shared project directory on the server (Aurora)
+- creating a new directory to store the necessary hysplit files
+
+For the large .ARL files, we will be creating Symlinks (symbolic link), which will reference the original files without having to copy them over. We do this because hysplit requires the .ARLs forcing files to be in the same folder as the other files, and they would be time-consuming to copy and use a lot of storage.
 
 ```{r}
 # creating file paths to different directories
@@ -47,6 +52,7 @@ This loop runs in parallel using the foreach() function. For each month, it:
 2) Creates the SETUP file
 3) Creates the CONTROL file
 4) Runs the hysplit model using the system() command
+
 ```{r}
 
 # Start cluster to use for parallel computing
@@ -58,12 +64,12 @@ doParallel::registerDoParallel(cl)
 # Must match the names of the .ARL files
 # Will use in the created file names (Ex: cdumb.June, SETUP.Aug)
 
-# Year of the run (to be changed in a loop)
-
+# Year of the run (can be changed in a loop if necessary)
 run_year = "1981"
 
 # Build the path for the specific year
 arl_year_path <- file.path(wrf_dir, run_year)
+
 # List all the ARL files
 arl_files <- list.files(path = arl_year_path, pattern = "ARL")
 
@@ -74,14 +80,13 @@ system(sprintf("ln -s %s/*.ARL %s", arl_year_path, file.path(run_dir)))
 emmitimes_files <- list.files(path = shared_dir, pattern = sprintf("^Scenario.*(%s)", run_year))
 emmitimes_files
 
-
+# Main loop
 foreach(scenarios_file = emmitimes_files) %dopar% {
   
   # build model run name with extension
   model_run_ext <- gsub("^[^_]*_", replacement = "", scenarios_file) 
   # build model run name without extension
   model_run <- gsub("\\.[^.]*$", replacement = "", model_run_ext) 
-
 
   # reading in the functions from the "hysplit_batch_functions" script
   source(file.path(repo_dir,"hysplit_batch_functions.R"))
@@ -112,6 +117,7 @@ foreach(scenarios_file = emmitimes_files) %dopar% {
 
 
   #### Run the model #####
+  
   repo <- getwd() # saves current working directory
   setwd(run_dir) # saves working directory to the run folder
   system(sprintf("../hysplit/5.0.0/exec/hycs_std %s", model_run)) # runs the command line function for hysplit
